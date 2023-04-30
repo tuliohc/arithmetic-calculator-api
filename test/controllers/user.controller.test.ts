@@ -24,7 +24,7 @@ describe('User controller', () => {
 
       await userController.signin(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ message: 'Authentication successful' });
+      expect(res.json).toHaveBeenCalledWith({ token: expect.any(String) });
       
       // restore original method
       findOneStub.mockRestore();
