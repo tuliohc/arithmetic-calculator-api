@@ -19,8 +19,18 @@ export default {
       // Return the token as part of the response
       res.json({ token });
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
-  }
+  },
+  async logout(req: Request, res: Response) {
+    try {
+      res.clearCookie('token'); // clear the token cookie
+      res.json({ message: 'Logout successful' });
+    } catch (error) {
+      // console.error(error);
+      res.status(500).json({ error: 'An unexpected error occurred' });
+    }
+  },
+
 };
