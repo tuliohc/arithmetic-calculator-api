@@ -34,7 +34,10 @@ describe('User controller', () => {
       const req = {
         body: { username: 'user@example.com', password: 'wrongpassword' },
       } as Request;
-      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
+      const res = { 
+        status: jest.fn().mockReturnThis(), 
+        json: jest.fn() 
+      } as unknown as Response;
 
       // create a stub for UserModel.findOne method
       const findOneStub = jest.spyOn(UserModel, 'findOne');
@@ -51,9 +54,12 @@ describe('User controller', () => {
 
     it('should respond with a 500 status code for unexpected errors', async () => {
       const req = createRequest('user@example.com', 'password123');
-      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
+      const res = { 
+        status: jest.fn().mockReturnThis(), 
+        json: jest.fn() 
+      } as unknown as Response;
     
-      // create a stub for UserModel.findOne method that throws an error
+      // // create a stub for UserModel.findOne method that throws an error
       const findOneStub = jest.spyOn(UserModel, 'findOne');
       findOneStub.mockRejectedValueOnce(new Error('An unexpected error occurred'));
     
@@ -66,5 +72,20 @@ describe('User controller', () => {
       findOneStub.mockRestore();
     });
 
+  });
+
+  describe('logout', () => {
+    it('should clear the token cookie and return a success message', () => {
+      const req = { headers: { authorization: 'Bearer valid-token' } } as Request;
+      const res = {
+        clearCookie: jest.fn(),
+        json: jest.fn(),
+      } as unknown as Response;
+
+      userController.logout(req, res);
+
+      expect(res.clearCookie).toHaveBeenCalledWith('token');
+      expect(res.json).toHaveBeenCalledWith({ message: 'Logout successful' });
+    });
   });
 });

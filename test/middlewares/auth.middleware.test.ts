@@ -15,7 +15,8 @@ describe('requireAuth Middleware', () => {
     const token = jwt.sign({ userId: '123' }, secret);
     const req = { headers: { authorization: `Bearer ${token}` } } as unknown as AuthRequest;
     const res = {} as Response;
-    const next = jest.fn() as unknown as NextFunction;
+    const next = jest.fn() as NextFunction;
+
     requireAuth(req, res, next);
 
     expect(req.userId).toEqual('123');
@@ -28,7 +29,7 @@ describe('requireAuth Middleware', () => {
       status: jest.fn().mockReturnThis(),
       json: jest.fn(),
     } as unknown as Response;
-    const next = jest.fn();
+    const next = jest.fn() as NextFunction;
 
     requireAuth(req, res, next);
 
@@ -42,7 +43,7 @@ describe('requireAuth Middleware', () => {
     const jsonMock = jest.fn();
     const statusMock = jest.fn().mockReturnValueOnce({ json: jsonMock });
     const res = { status: statusMock } as unknown as Response;
-    const next = jest.fn();
+    const next = jest.fn() as NextFunction;
 
     requireAuth(req, res, next);
 
