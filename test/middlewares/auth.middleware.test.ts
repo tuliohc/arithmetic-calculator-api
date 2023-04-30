@@ -21,4 +21,19 @@ describe('requireAuth Middleware', () => {
     expect(req.userId).toEqual('123');
     expect(next).toHaveBeenCalled();
   });
+
+  it('should return a 401 error when not given a token', () => {
+    const req = { headers: {} } as Request;
+    const res = {
+      status: jest.fn().mockReturnThis(),
+      json: jest.fn(),
+    } as unknown as Response;
+    const next = jest.fn();
+
+    requireAuth(req, res, next);
+
+    expect(res.status).toHaveBeenCalledWith(401);
+    expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' });
+    expect(next).not.toHaveBeenCalled();
+  });
 });
