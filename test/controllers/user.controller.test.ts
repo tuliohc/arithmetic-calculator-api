@@ -30,5 +30,24 @@ describe('User controller', () => {
       findOneStub.mockRestore();
     });
 
+    it('should respond with a 401 status code for invalid credentials', async () => {
+      const req = {
+        body: { username: 'user@example.com', password: 'wrongpassword' },
+      } as Request;
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
+
+      // create a stub for UserModel.findOne method
+      const findOneStub = jest.spyOn(UserModel, 'findOne');
+      findOneStub.mockResolvedValueOnce(null);
+
+      await userController.signin(req, res);
+
+      expect(res.status).toHaveBeenCalledWith(401);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Invalid credentials' });
+
+      // restore original method
+      findOneStub.mockRestore();
+    });
+
   });
 });
