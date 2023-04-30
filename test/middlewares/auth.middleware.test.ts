@@ -36,4 +36,18 @@ describe('requireAuth Middleware', () => {
     expect(res.json).toHaveBeenCalledWith({ error: 'Authentication required' });
     expect(next).not.toHaveBeenCalled();
   });
+
+  it('should return a 401 error when given an invalid token', () => {
+    const req = { headers: { authorization: 'Bearer invalid-token' } } as unknown as Request;
+    const jsonMock = jest.fn();
+    const statusMock = jest.fn().mockReturnValueOnce({ json: jsonMock });
+    const res = { status: statusMock } as unknown as Response;
+    const next = jest.fn();
+
+    requireAuth(req, res, next);
+
+    expect(statusMock).toHaveBeenCalledWith(401);
+    expect(jsonMock).toHaveBeenCalledWith({ error: 'Invalid token' });
+    expect(next).not.toHaveBeenCalled();
+  });
 });
