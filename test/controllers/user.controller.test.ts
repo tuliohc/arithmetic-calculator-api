@@ -49,5 +49,22 @@ describe('User controller', () => {
       findOneStub.mockRestore();
     });
 
+    it('should respond with a 500 status code for unexpected errors', async () => {
+      const req = createRequest('user@example.com', 'password123');
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
+    
+      // create a stub for UserModel.findOne method that throws an error
+      const findOneStub = jest.spyOn(UserModel, 'findOne');
+      findOneStub.mockRejectedValueOnce(new Error('An unexpected error occurred'));
+    
+      await userController.signin(req, res);
+    
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'An unexpected error occurred' });
+    
+      // restore original method
+      findOneStub.mockRestore();
+    });
+
   });
 });
