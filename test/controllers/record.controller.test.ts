@@ -29,5 +29,17 @@ describe('Record controller', () => {
       expect(res.json).toHaveBeenCalledWith(mockRecords);
     });
 
+    it('should return a 500 error when an unexpected error occurs', async () => {
+      const req = { userId: fakeUserId } as unknown as Request;
+      const res = { json: jest.fn(), status: jest.fn().mockReturnThis() } as unknown as Response;
+
+      (RecordModel.find as jest.Mock).mockRejectedValueOnce(new Error('An unexpected error occurred'));
+
+      await recordController.getRecords(req, res);
+
+      expect(RecordModel.find).toHaveBeenCalledWith({ user: fakeUserId });
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'An unexpected error occurred' });
+    });
   });
 });
