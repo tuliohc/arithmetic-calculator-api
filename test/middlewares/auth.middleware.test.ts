@@ -1,6 +1,7 @@
 import { requireAuth } from '../../src/middlewares/auth.middleware';
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
+import { environment } from '../../src/config/environment';
 
 
 interface AuthRequest extends Request {
@@ -9,7 +10,7 @@ interface AuthRequest extends Request {
 
 describe('requireAuth Middleware', () => {
 
-  const secret = process.env.JWT_SECRET || 'secret';
+  const secret = environment.JWT_SECRET || 'secret';
 
   it('should set the userId on the request object when given a valid token', () => {
     const token = jwt.sign({ userId: '123' }, secret);

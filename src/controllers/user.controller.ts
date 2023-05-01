@@ -1,6 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { UserModel } from '../models/user.model';
+import { environment } from '../config/environment';
 
 interface AuthenticatedRequest extends Request {
   userId?: string;
@@ -8,8 +9,7 @@ interface AuthenticatedRequest extends Request {
 
 export default {
   async signin(req: Request, res: Response) {
-    const secret = process.env.JWT_SECRET || 'secret';
-    
+    const secret = environment.JWT_SECRET;
     try {
       const { username, password } = req.body;
       const user = await UserModel.findOne({ username, password });

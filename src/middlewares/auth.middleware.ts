@@ -1,13 +1,13 @@
 import jwt from 'jsonwebtoken';
 import { Request, Response, NextFunction } from 'express';
-
+import { environment } from '../config/environment';
 
 interface AuthRequest extends Request {
   userId?: string;
 }
 
 export function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
-  const secret = process.env.JWT_SECRET || 'secret';
+  const secret = environment.JWT_SECRET;
 
   // Get the token from the Authorization header
   const authHeader = req.headers.authorization;

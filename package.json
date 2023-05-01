@@ -2,10 +2,11 @@
   "name": "arithmetic-calc-api",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
-  "type": "module",
+  "type": "commonjs",
   "scripts": {
-    "start": "ts-node-dev src/server.ts",
+    "start": "nodemon dist/server.js",
+    "build": "rimraf dist && tsc -p tsconfig.json",
+    "dev": "ts-node-dev --respawn --transpileOnly src/server.ts",
     "test": "jest --runInBand --config=jest.config.js"
   },
   "author": "",
@@ -14,12 +15,16 @@
     "@types/express": "^4.17.17",
     "@types/jest": "^29.5.1",
     "express": "^4.18.2",
+    "nodemon": "^2.0.22",
+    "rimraf": "^5.0.0",
     "ts-node-dev": "^2.0.0",
     "typescript": "^5.0.4"
   },
   "dependencies": {
     "@types/decimal.js": "^7.4.0",
+    "body-parser": "^1.20.2",
     "decimal.js": "^10.4.3",
+    "dotenv": "^16.0.3",
     "jest": "^29.5.0",
     "jsonwebtoken": "^9.0.0",
     "mongoose": "^7.1.0",

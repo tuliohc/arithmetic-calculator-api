@@ -2,12 +2,21 @@ import express from 'express';
 import userRoutes from './routes/user.routes';
 import operationRoutes from './routes/operation.routes';
 import recordRoutes from './routes/record.routes';
+import connectDB from './config/database';
+import bodyParser from 'body-parser';
+import { environment } from './config/environment';
 
 const app = express();
+const apiVersion = environment.API_VERSION;
 
-app.use(express.json());
-app.use('/users', userRoutes);
-app.use('/operations', operationRoutes);
-app.use('/records', recordRoutes);
+connectDB();
+
+app.use(bodyParser.urlencoded({ extended: false }));
+
+app.use(bodyParser.json());
+
+app.use(`/api/${apiVersion}/users`, userRoutes);
+app.use(`/api/${apiVersion}/operations`, operationRoutes);
+app.use(`/api/${apiVersion}/records`, recordRoutes);
 
 export default app;
