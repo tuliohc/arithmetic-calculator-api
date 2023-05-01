@@ -77,18 +77,6 @@ describe('User controller', () => {
 
   });
 
-  describe('logout', () => {
-    it('should clear the token cookie and return a success message', () => {
-      const req = { headers: { authorization: 'Bearer valid-token' } } as Request;
-      const res = createResponse() as unknown as Response;
-
-      userController.logout(req, res);
-
-      expect(res.clearCookie).toHaveBeenCalledWith('token');
-      expect(res.json).toHaveBeenCalledWith({ message: 'Logout successful' });
-    });
-  });
-
   describe('getUserBalance', () => {
     const mockUser = {
       id: 'mockUserId',

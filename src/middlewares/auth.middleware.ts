@@ -22,7 +22,7 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
     const userId = (decoded as any).userId;
 
     // Check that the user ID in the request matches the authenticated user's ID
-    if (req.params.id !== userId) {
+    if (req.params.id && req.params.id !== userId) {
       return res.status(403).json({ error: 'Access denied' });
     }
 

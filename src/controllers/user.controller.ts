@@ -18,19 +18,14 @@ export default {
       }
   
       // Create a JWT token with the user ID and username
-      const token = jwt.sign({ userId: user._id, username: user.username }, secret);
+      const token = jwt.sign(
+        { userId: user._id, username: user.username }, 
+        secret, 
+        { expiresIn: environment.JWT_TOKEN_EXPIRATION_TIME }
+      );
   
       // Return the token as part of the response
       res.json({ token });
-    } catch (error) {
-      // console.error(error);
-      res.status(500).json({ error: 'An unexpected error occurred' });
-    }
-  },
-  async logout(req: Request, res: Response) {
-    try {
-      res.clearCookie('token'); // clear the token cookie
-      res.json({ message: 'Logout successful' });
     } catch (error) {
       // console.error(error);
       res.status(500).json({ error: 'An unexpected error occurred' });
