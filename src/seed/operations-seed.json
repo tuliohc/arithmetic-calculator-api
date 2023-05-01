@@ -1,0 +1,26 @@
+[  
+  {    
+    "type": "addition",    
+    "cost": 1.0  
+  },  
+  {    
+    "type": "subtraction",    
+    "cost": 1.0  
+  },  
+  {    
+    "type": "multiplication",    
+    "cost": 2.0  
+  },  
+  {    
+    "type": "division",    
+    "cost": 2.0  
+  },  
+  {    
+    "type": "square_root",    
+    "cost": 3.0  
+  },
+  {    
+    "type": "random_string",    
+    "cost": 1.0  
+  }
+]
