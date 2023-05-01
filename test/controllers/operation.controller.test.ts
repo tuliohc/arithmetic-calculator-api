@@ -9,8 +9,14 @@ interface AuthenticatedRequest extends Request {
   userId?: string;
 }
 
+const mockUser = {
+  _id: '123',
+  balance: '100',
+  save: jest.fn(),
+};
+
 function mockUserWithBalance(balance: string) {
-  jest.spyOn(UserModel, 'findById').mockResolvedValue({ _id: '123', balance, save: jest.fn() });
+  jest.spyOn(UserModel, 'findById').mockResolvedValue({ _id: mockUser._id, balance, save: jest.fn() });
 }
 
 function mockUserNotFound() {
@@ -18,12 +24,16 @@ function mockUserNotFound() {
 }
 
 function mockUserFindError() {
-  jest.spyOn(UserModel, 'findById').mockImplementation(() => {
+  jest.spyOn(UserModel, 'findById').mockImplementation((id: any) => {
     throw new Error('Random Error');
   });
 }
 
 describe('Operation controller', () => {
+  afterEach(() => {
+    jest.restoreAllMocks();
+  });
+
   describe('calculate', () => {
     it('should perform addition operation', () => {
       const result = calculate(OperationType.ADDITION, ['2', '3']);
@@ -58,7 +68,7 @@ describe('Operation controller', () => {
     let json: jest.Mock;
 
     beforeEach(() => {
-      req = { userId: '123', params: { type: OperationType.ADDITION }, body: { params: [1, 2] } };
+      req = { userId: mockUser._id, params: { type: OperationType.ADDITION }, body: { params: [1, 2] } };
       status = jest.fn().mockReturnThis();
       json = jest.fn().mockReturnThis();
       res = { status, json };
@@ -67,17 +77,13 @@ describe('Operation controller', () => {
       jest.spyOn(RecordModel, 'create').mockImplementation();
     });
 
-    afterEach(() => {
-      jest.restoreAllMocks();
-    });
-
     it('should perform an addition operation and return the result', async () => {
-      mockUserWithBalance('100')
+      mockUserWithBalance(mockUser.balance)
       jest.spyOn(RecordModel, 'create').mockResolvedValue(undefined);
   
       await operationController.performOperation(req as AuthenticatedRequest, res as Response);
   
-      expect(UserModel.findById).toHaveBeenCalledWith('123');
+      expect(UserModel.findById).toHaveBeenCalledWith(mockUser._id);
       expect(RecordModel.create).toHaveBeenCalled();
       expect(json).toHaveBeenCalledWith({ result: '3', balance: '99' });
     });
@@ -91,6 +97,17 @@ describe('Operation controller', () => {
         expect(status).toHaveBeenCalledWith(400);
         expect(json).toHaveBeenCalledWith({ error: 'Invalid operation type' });
       });
+
+      it('should return a 403 error when the user does not have enough balance', async () => {
+        const insufficientBalance = '0';
+        mockUserWithBalance(insufficientBalance);
+      
+        await operationController.performOperation(req as AuthenticatedRequest, res as Response);
+      
+        expect(UserModel.findById).toHaveBeenCalledWith(mockUser._id);
+        expect(status).toHaveBeenCalledWith(403);
+        expect(json).toHaveBeenCalledWith({ error: 'Insufficient balance' });
+      });
   
       it('should return a 404 error when the user is not found', async () => {
         mockUserNotFound();
@@ -100,7 +117,7 @@ describe('Operation controller', () => {
         expect(status).toHaveBeenCalledWith(404);
         expect(json).toHaveBeenCalledWith({ error: 'User not found' });
       });
-  
+
       it('should return 500 when an unexpected condition occurs', async () => {
         mockUserFindError();
   
