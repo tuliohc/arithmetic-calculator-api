@@ -19,7 +19,16 @@ export function requireAuth(req: AuthRequest, res: Response, next: NextFunction)
   // Verify the token and extract the user ID
   try {
     const decoded = jwt.verify(token, secret);
-    req.userId = (decoded as any).userId;
+    const userId = (decoded as any).userId;
+
+    // Check that the user ID in the request matches the authenticated user's ID
+    if (req.params.id !== userId) {
+      return res.status(403).json({ error: 'Access denied' });
+    }
+
+    // Store the userId in the request object
+    req.userId = userId
+
     next();
   } catch (error) {
     // console.error(error);

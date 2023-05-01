@@ -2,6 +2,10 @@ import jwt from 'jsonwebtoken';
 import { Request, Response } from 'express';
 import { UserModel } from '../models/user.model';
 
+interface AuthenticatedRequest extends Request {
+  userId?: string;
+}
+
 export default {
   async signin(req: Request, res: Response) {
     const secret = process.env.JWT_SECRET || 'secret';
@@ -29,6 +33,23 @@ export default {
       res.json({ message: 'Logout successful' });
     } catch (error) {
       // console.error(error);
+      res.status(500).json({ error: 'An unexpected error occurred' });
+    }
+  },
+  async getUserBalance(req: AuthenticatedRequest, res: Response) {
+    try {
+      // Get the authenticated user's ID from the request
+      const { userId } = req as any;
+
+      // Find the user by ID and retrieve their balance
+      const user = await UserModel.findById(userId);
+
+      if (!user) {
+        return res.status(404).json({ error: 'User not found' });
+      }
+      // Return the user's balance
+      res.json({ balance: user.balance });
+    } catch (error) {
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
   },
