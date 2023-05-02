@@ -191,5 +191,22 @@ describe('Record controller', () => {
       expect(res.json).toHaveBeenCalledWith({ date: deletedRecord.deletedAt });
     });
 
+    it('should return a 404 error when the record is not found', async () => {
+      const req = { params: { id: '1' } } as unknown as Request;
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as unknown as Response;
+  
+      (RecordModel.findByIdAndUpdate as jest.Mock).mockResolvedValueOnce(null);
+  
+      await recordController.deleteRecord(req, res);
+  
+      expect(RecordModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        '1',
+        { deletedAt: expect.any(Number) },
+        { new: true }
+      );
+      expect(res.status).toHaveBeenCalledWith(404);
+      expect(res.json).toHaveBeenCalledWith({ error: 'Record not found' });
+    });
+
   });
 });
