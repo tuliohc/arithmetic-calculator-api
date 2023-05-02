@@ -1,8 +1,8 @@
-import app from './app';
-import { environment } from './config/environment';
+// import app from './app';
+// import { environment } from './config/environment';
 
-const PORT = environment.PORT;
+// const PORT = environment.PORT;
 
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
+// app.listen(PORT, () => {
+//   console.log(`Server listening on port ${PORT}`);
+// });

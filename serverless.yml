@@ -1,0 +1,16 @@
+service: truenorth-calculator-api
+
+provider:
+  name: aws
+  runtime: nodejs16.x
+
+plugins:
+- serverless-offline
+
+functions:
+  api:
+    handler: dist/app.handler
+    events:
+      - http:
+          method: ANY
+          path: /{proxy+}
