@@ -33,7 +33,14 @@ export const operationController = {
         return res.status(403).json({ error: 'Insufficient balance' });
       }
 
-      const parsedParams = JSON.parse(params)
+      let parsedParams;
+      if (type === OperationType.RANDOM_STRING) {
+        // Set default empty array for params if not provided
+        parsedParams = params || [];
+      } else {
+        parsedParams = JSON.parse(params);
+      }
+
 
       // Perform the operation and update the user balance
       const operationResult = await calculate(type as OperationType, parsedParams);

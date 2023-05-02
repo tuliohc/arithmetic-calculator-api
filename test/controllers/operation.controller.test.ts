@@ -30,28 +30,28 @@ describe('Operation controller', () => {
   });
 
   describe('calculate', () => {
-    it('should perform addition operation', () => {
-      const result = calculate(OperationType.ADDITION, ['2', '3']);
+    it('should perform addition operation', async () => {
+      const result = await calculate(OperationType.ADDITION, ['2', '3']);
       expect(result).toEqual(new Decimal(5));
     });
 
-    it('should perform subtraction operation', () => {
-      const result = calculate(OperationType.SUBTRACTION, ['5', '3']);
+    it('should perform subtraction operation', async () => {
+      const result = await calculate(OperationType.SUBTRACTION, ['5', '3']);
       expect(result).toEqual(new Decimal(2));
     });
 
-    it('should perform multiplication operation', () => {
-      const result = calculate(OperationType.MULTIPLICATION, ['2', '3']);
+    it('should perform multiplication operation', async () => {
+      const result = await calculate(OperationType.MULTIPLICATION, ['2', '3']);
       expect(result).toEqual(new Decimal(6));
     });
 
-    it('should perform division operation', () => {
-      const result = calculate(OperationType.DIVISION, ['6', '3']);
+    it('should perform division operation', async () => {
+      const result = await calculate(OperationType.DIVISION, ['6', '3']);
       expect(result).toEqual(new Decimal(2));
     });
 
-    it('should perform square root operation', () => {
-      const result = calculate(OperationType.SQUARE_ROOT, ['25']);
+    it('should perform square root operation', async () => {
+      const result = await calculate(OperationType.SQUARE_ROOT, ['25']);
       expect(result).toEqual(new Decimal(5));
     });
   });
