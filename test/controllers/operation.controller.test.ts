@@ -63,7 +63,7 @@ describe('Operation controller', () => {
     let json: jest.Mock;
 
     beforeEach(() => {
-      req = { userId: mockUser._id, params: { type: OperationType.ADDITION }, body: { params: [1, 2] } };
+      req = { userId: mockUser._id, params: { type: OperationType.ADDITION }, body: { params: "[1, 2]" } };
       status = jest.fn().mockReturnThis();
       json = jest.fn().mockReturnThis();
       res = { status, json };

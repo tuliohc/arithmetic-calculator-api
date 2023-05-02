@@ -32,8 +32,10 @@ export const operationController = {
         return res.status(403).json({ error: 'Insufficient balance' });
       }
 
+      const parsedParams = JSON.parse(params)
+
       // Perform the operation and update the user balance
-      const operationResult = calculate(type as OperationType, params);
+      const operationResult = calculate(type as OperationType, parsedParams);
       user.balance = balance.minus(cost).toString();
       await user.save();
 
