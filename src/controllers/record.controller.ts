@@ -1,5 +1,5 @@
 import { Request, Response } from 'express';
-import { RecordModel } from '../models/record.model';
+import { OperationModel, RecordModel } from '../models';
 
 export const recordController = {
   async getRecords(req: Request, res: Response) {
@@ -11,10 +11,16 @@ export const recordController = {
 
       // Apply search filter
       if (search) {
+        const searchRegex = { $regex: new RegExp(search.toString(), 'i') };
+
+        // Get matching operation IDs
+        const matchingOperations = await OperationModel.find({ type: searchRegex }, '_id');
+        const matchingOperationIds = matchingOperations.map(op => op._id);
+
         query.$or = [
-          { operationType: { $regex: new RegExp(search.toString(), 'i') } },
-          { params: { $elemMatch: { $regex: new RegExp(search.toString(), 'i') } } },
-          { result: { $regex: new RegExp(search.toString(), 'i') } },
+          { operation: { $in: matchingOperationIds } },
+          { userBalance: searchRegex },
+          { operationResponse: searchRegex }
         ];
       }
 
@@ -31,19 +37,27 @@ export const recordController = {
       }
 
       const records = await RecordModel.find(query)
+        .populate('operation')
         .sort(sortOption)
         .skip((Number(page) - 1) * Number(perPage))
-        .limit(Number(perPage));
+        .limit(Number(perPage))
+        .lean();
+        
+      const transformedRecords = records.map(({ __v, operation, ...record }) => ({
+        ...record,
+        operation_type: operation.type,
+      }));
+
 
       res.json({
         page: Number(page),
         perPage: Number(perPage),
         totalCount,
-        data: records,
+        data: transformedRecords,
       });
 
     } catch (error) {
-      // console.error(error);
+      console.error(error);
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
   },
