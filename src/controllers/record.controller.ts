@@ -47,4 +47,27 @@ export const recordController = {
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
   },
+  
+  async deleteRecord(req: Request, res: Response) {
+    try {
+      const { id } = req.params;
+
+      // Find the record by id and update the deletedAt field to the current time
+      const deletedRecord = await RecordModel.findByIdAndUpdate(
+        id,
+        { deletedAt: Date.now() },
+        { new: true }
+      );
+  
+      // If the record is not found, return a 404 error
+      if (!deletedRecord) {
+        return res.status(404).json({ error: 'Record not found' });
+      }
+  
+      // Return the timestamp of the deleted record 
+      res.json({ date: deletedRecord.deletedAt });
+    } catch (error) {
+      res.status(500).json({ error: 'An unexpected error occurred' });
+    }
+  } 
 };

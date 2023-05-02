@@ -4,6 +4,7 @@ import { recordController } from '../controllers/record.controller';
 
 const router = Router();
 
-router.post('/', requireAuth, recordController.getRecords);
+router.get('/', requireAuth, recordController.getRecords);
+router.delete('/:id', requireAuth, recordController.deleteRecord);
 
 export default router;
