@@ -1,5 +1,6 @@
 import express from 'express';
 import serverless from 'serverless-http';
+import helmet from 'helmet';
 import userRoutes from './routes/user.routes';
 import operationRoutes from './routes/operation.routes';
 import recordRoutes from './routes/record.routes';
@@ -14,8 +15,8 @@ const apiVersion = environment.API_VERSION;
 connectDB();
 
 app.use(bodyParser.urlencoded({ extended: false }));
-
 app.use(bodyParser.json());
+app.use(helmet());
 
 app.use(`/api/${apiVersion}/seed`, seedRoutes);
 app.use(`/api/${apiVersion}/users`, userRoutes);
