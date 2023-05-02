@@ -167,4 +167,29 @@ describe('Record controller', () => {
     });
 
   });
+
+  describe('deleteRecord', () => {
+    afterEach(() => {
+      jest.clearAllMocks();
+    });
+  
+    it('should soft delete a record', async () => {
+      const req = { params: { id: '1' } } as unknown as Request;
+      const res = { json: jest.fn() } as unknown as Response;
+  
+      const deleteDate = Date.now()
+      const deletedRecord = { _id: '1', deletedAt: deleteDate };
+      (RecordModel.findByIdAndUpdate as jest.Mock).mockResolvedValueOnce(deletedRecord);
+  
+      await recordController.deleteRecord(req, res);
+  
+      expect(RecordModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        '1',
+        { deletedAt: expect.any(Number) },
+        { new: true }
+      );
+      expect(res.json).toHaveBeenCalledWith({ date: deletedRecord.deletedAt });
+    });
+
+  });
 });
