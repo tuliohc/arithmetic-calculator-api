@@ -1,0 +1,27 @@
+version: '3'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    ports:
+      - "3000:3000"
+    env_file: .env
+    depends_on:
+      - db
+    environment:
+      MONGO_URL: "mongodb://db:27017/truenorth"
+    networks:
+      - my-network
+  db:
+    image: mongodb/mongodb-community-server:6.0-ubi8
+    environment:
+      MONGO_INITDB_DATABASE: truenorth
+    ports:
+      - "27017:27017"
+    networks:
+      - my-network
+
+networks:
+  my-network:
