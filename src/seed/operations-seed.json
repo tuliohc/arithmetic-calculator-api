@@ -1,25 +1,31 @@
 [  
   {    
+    "_id": "6450f420f1713f4543b02821",
     "type": "addition",    
     "cost": 1.0  
   },  
-  {    
+  {  
+    "_id": "6450f420f1713f4543b02822",  
     "type": "subtraction",    
     "cost": 1.0  
   },  
   {    
+    "_id": "6450f420f1713f4543b02823",
     "type": "multiplication",    
     "cost": 2.0  
   },  
   {    
+    "_id": "6450f420f1713f4543b02824",
     "type": "division",    
     "cost": 2.0  
   },  
   {    
+    "_id": "6450f420f1713f4543b02825",
     "type": "square_root",    
     "cost": 3.0  
   },
   {    
+    "_id": "6450f420f1713f4543b02826",
     "type": "random_string",    
     "cost": 1.0  
   }
