@@ -1,4 +1,5 @@
 import Decimal from 'decimal.js';
+import axios from 'axios';
 import { Request, Response } from 'express';
 import { RecordModel } from '../models/record.model';
 import { UserModel } from '../models/user.model';
@@ -35,7 +36,7 @@ export const operationController = {
       const parsedParams = JSON.parse(params)
 
       // Perform the operation and update the user balance
-      const operationResult = calculate(type as OperationType, parsedParams);
+      const operationResult = await calculate(type as OperationType, parsedParams);
       user.balance = balance.minus(cost).toString();
       await user.save();
 
@@ -58,7 +59,7 @@ export const operationController = {
   },
 };
 
-export function calculate(type: OperationType, params: any[]) {
+export async function calculate(type: OperationType, params: any[]) {
   if (!Array.isArray(params)) {
     throw new Error('Invalid parameters');
   }
@@ -75,8 +76,24 @@ export function calculate(type: OperationType, params: any[]) {
     case OperationType.SQUARE_ROOT:
       return new Decimal(params[0]).squareRoot();
     case OperationType.RANDOM_STRING:
-      return null //TODO:  https://www.random.org/
+      return await requestRandomString()
     default:
       throw new Error('Invalid operation type');
   }
+}
+
+async function requestRandomString() {
+  const response = await axios.get('https://www.random.org/strings/', {
+    params: {
+      num: 1,
+      len: 8,
+      digits: 'on',
+      upperalpha: 'on',
+      loweralpha: 'on',
+      unique: 'on',
+      format: 'plain',
+    },
+  });
+
+  return response.data.trim();
 }

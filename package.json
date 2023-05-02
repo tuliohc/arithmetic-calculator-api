@@ -6,7 +6,6 @@
   "scripts": {
     "start": "nodemon dist/server.js",
     "build": "rimraf dist && tsc -p tsconfig.json",
-    "dev": "ts-node-dev --respawn --transpileOnly src/server.ts",
     "test": "jest --runInBand --config=jest.config.js"
   },
   "author": "",
@@ -22,6 +21,7 @@
   },
   "dependencies": {
     "@types/decimal.js": "^7.4.0",
+    "axios": "^1.4.0",
     "body-parser": "^1.20.2",
     "decimal.js": "^10.4.3",
     "dotenv": "^16.0.3",
