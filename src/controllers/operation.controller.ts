@@ -34,7 +34,7 @@ export const operationController = {
       }
 
       let parsedParams;
-      if (type === OperationType.RANDOM_STRING) {
+      if (type == OperationType.RANDOM_STRING) {
         // Set default empty array for params if not provided
         parsedParams = params || [];
       } else {
@@ -67,7 +67,7 @@ export const operationController = {
 };
 
 export async function calculate(type: OperationType, params: any[]) {
-  if (!Array.isArray(params)) {
+  if (!Array.isArray(params) && type !== OperationType.RANDOM_STRING ) {
     throw new Error('Invalid parameters');
   }
 

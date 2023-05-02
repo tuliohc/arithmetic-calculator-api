@@ -10,9 +10,6 @@ export default {
   async seed(req: Request, res: Response) {
     try {
       try {
-        await mongoose.connect(environment.MONGODB_URI!);
-        console.log('Connected to MongoDB');
-    
         // Delete any existing operations in the database
         await OperationModel.deleteMany({});
     
@@ -26,8 +23,7 @@ export default {
         // Insert users
         const users = await UserModel.create(initialUsers)
         console.log(`Inserted ${users.length} user(s)`)
-    
-        mongoose.connection.close();
+
         console.log('Seeds successfully synced');
 
         res.json({ status: 'Seeds successfully synced' });
