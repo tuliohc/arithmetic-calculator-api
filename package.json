@@ -8,7 +8,9 @@
     "build": "rimraf dist && tsc -p tsconfig.json",
     "test": "jest --runInBand --config=jest.config.js",
     "coverage": "jest --coverage --config=jest.config.js",
-    "deploy": "serverless deploy"
+    "deploy": "serverless deploy",
+    "docker:build": "docker-compose build",
+    "docker:up": "docker-compose up -d"
   },
   "author": "",
   "license": "ISC",
