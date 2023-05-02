@@ -208,5 +208,24 @@ describe('Record controller', () => {
       expect(res.json).toHaveBeenCalledWith({ error: 'Record not found' });
     });
 
+    it('should return a 500 error when an unexpected error occurs', async () => {
+      const req = { params: { id: '1' } } as unknown as Request;
+      const res = { status: jest.fn().mockReturnThis(), json: jest.fn() } as any;
+  
+      jest.spyOn(RecordModel, 'findByIdAndUpdate').mockImplementation(() => {
+        throw new Error('Random Error');
+      });
+  
+      await recordController.deleteRecord(req, res);
+  
+      expect(RecordModel.findByIdAndUpdate).toHaveBeenCalledWith(
+        '1',
+        { deletedAt: expect.any(Number) },
+        { new: true }
+      );
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'An unexpected error occurred' });
+    });
+
   });
 });
