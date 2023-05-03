@@ -9,12 +9,11 @@ interface AuthRequest extends Request {
 export function requireAuth(req: AuthRequest, res: Response, next: NextFunction) {
   const secret = environment.JWT_SECRET;
 
-  // Get the token from the Authorization header
-  const authHeader = req.headers.authorization;
-  if (!authHeader) {
-    return res.status(401).json({ error: 'Authentication required' });
+  const token = req.cookies['arithmeticCalculatorApp_jwtToken'];
+
+  if (!token) {
+    return res.status(401).json({ error: 'Access denied. No token provided.' });
   }
-  const token = authHeader.split(' ')[1];
 
   // Verify the token and extract the user ID
   try {
