@@ -45,6 +45,36 @@ export default {
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
   },
+  async signout(req: Request, res: Response) {
+    try {
+      res.clearCookie('arithmeticCalculatorApp_jwtToken');
+      res.json({ message: 'Sign-out successful' });
+    } catch (error) {
+      console.error('Error during sign-out:', error);
+      res.status(500).json({ error: 'An unexpected error occurred' });
+    }
+  },
+  
+  async checkAuth(req: Request, res: Response) {
+    try {
+
+      // Get the JWT token from the HttpOnly cookie
+      const token = req.cookies['arithmeticCalculatorApp_jwtToken'];
+  
+      if (!token) {
+        return res.status(401).json({ authenticated: false });
+      }
+  
+      // Verify the token
+      jwt.verify(token, environment.JWT_SECRET);
+      
+      // If the token is valid, return an authenticated status
+      res.json({ authenticated: true });
+    } catch (error) {
+      // If the token is invalid, return an unauthenticated status
+      res.status(400).json({ authenticated: false });
+    }
+  },
   async getUserBalance(req: AuthenticatedRequest, res: Response) {
     try {
       // Get the authenticated user's ID from the request
