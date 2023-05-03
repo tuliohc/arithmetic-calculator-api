@@ -23,11 +23,25 @@ export default {
         secret, 
         { expiresIn: environment.JWT_TOKEN_EXPIRATION_TIME }
       );
+
+      const cookieOptions = {
+        httpOnly: true,
+        // secure: true, // Uncomment this line to use secure cookies (HTTPS only)
+        maxAge: parseInt(environment.JWT_TOKEN_EXPIRATION_TIME, 10) * 1000,
+      };
+
+      // Convert the cookie options to a string
+      const cookieOptionsString = Object.entries(cookieOptions)
+      .map(([key, value]) => `${key}=${value}`)
+      .join('; ');
+
+      // Set the HttpOnly cookie in the response
+      res.setHeader('Set-Cookie', `arithmeticCalculatorApp_jwtToken=${token}; ${cookieOptionsString}`);
   
-      // Return the token as part of the response
-      res.json({ token });
+      // Return a success message as part of the response
+      res.json({ message: 'Sign-in successful' });
     } catch (error) {
-      // console.error(error);
+      console.error(error);
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
   },

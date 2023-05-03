@@ -16,6 +16,7 @@ function createResponse(): Partial<Response> {
   const res = {
     status: jest.fn().mockReturnThis(),
     json: jest.fn(),
+    setHeader: jest.fn(),
     clearCookie: jest.fn(),
   };
   res.status.mockReturnValue(res);
@@ -48,7 +49,7 @@ describe('User controller', () => {
 
       await userController.signin(req, res);
 
-      expect(res.json).toHaveBeenCalledWith({ token: expect.any(String) });
+      expect(res.json).toHaveBeenCalledWith({ message: 'Sign-in successful' });
     });
 
     it('should respond with a 401 status code for invalid credentials', async () => {
