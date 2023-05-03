@@ -7,9 +7,18 @@ interface AuthenticatedRequest extends Request {
   userId?: string;
 }
 
+const cookieOptions = {
+  httpOnly: true,
+  secure: false, // Uncomment this line to use secure cookies (HTTPS only)
+  maxAge: parseInt(environment.JWT_TOKEN_EXPIRATION_TIME, 10) * 1000,
+  sameSite: 'lax' as 'lax'
+};
+
 export default {
+
+  
   async signin(req: Request, res: Response) {
-    const secret = environment.JWT_SECRET;
+    const { JWT_SECRET, JWT_TOKEN_EXPIRATION_TIME } = environment;
     try {
       const { username, password } = req.body;
       const user = await UserModel.findOne({ username, password });
@@ -20,23 +29,11 @@ export default {
       // Create a JWT token with the user ID and username
       const token = jwt.sign(
         { userId: user._id, username: user.username }, 
-        secret, 
-        { expiresIn: environment.JWT_TOKEN_EXPIRATION_TIME }
+        JWT_SECRET, 
+        { expiresIn: JWT_TOKEN_EXPIRATION_TIME }
       );
 
-      const cookieOptions = {
-        httpOnly: true,
-        // secure: true, // Uncomment this line to use secure cookies (HTTPS only)
-        maxAge: parseInt(environment.JWT_TOKEN_EXPIRATION_TIME, 10) * 1000,
-      };
-
-      // Convert the cookie options to a string
-      const cookieOptionsString = Object.entries(cookieOptions)
-      .map(([key, value]) => `${key}=${value}`)
-      .join('; ');
-
-      // Set the HttpOnly cookie in the response
-      res.setHeader('Set-Cookie', `arithmeticCalculatorApp_jwtToken=${token}; ${cookieOptionsString}`);
+      res.cookie('arithmeticCalculatorApp_jwtToken', token, cookieOptions);
   
       // Return a success message as part of the response
       res.json({ message: 'Sign-in successful' });
@@ -60,11 +57,11 @@ export default {
 
       // Get the JWT token from the HttpOnly cookie
       const token = req.cookies['arithmeticCalculatorApp_jwtToken'];
-  
+
       if (!token) {
         return res.status(401).json({ authenticated: false });
       }
-  
+
       // Verify the token
       jwt.verify(token, environment.JWT_SECRET);
       
