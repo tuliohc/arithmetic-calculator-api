@@ -87,15 +87,20 @@ To sign in, you need to pass the `username` and `password` in the request body.
 
 - Route: `POST http://localhost:3000/dev/api/v1/users/signin`
 - Example values: `{ "username": "user@mail.com", "password": "123456" }` 
-- Expected response: a JWT token
+- Expected response: 
+```
+{
+    "message": "Sign-in successful"
+}
+```
 
 
 ### Get user balance
 
 To get the user's balance, you need to pass the Bearer token collected from the sign-in request.
 
-- Route: `GET http://localhost:3000/dev/api/v1/users/:id/balance`
-- Example: `http://localhost:3000/dev/api/v1/users/644ffb94ff71109bf23785bf/balance`
+- Route: `GET http://localhost:3000/dev/api/v1/users/balance`
+- Example: `http://localhost:3000/dev/api/v1/users/balance`
 - Expected response: `{ "balance": "100" }` 
 
 
@@ -127,7 +132,7 @@ To get the records of the authenticated user, you can use the following route. Y
     { 
       "page": 1, 
       "perPage": 10, 
-      "totalCount": n, 
+      "totalCount": 1, 
       "data": [
         {
           "_id": "6450f571eb3295d5b3d3c22e",
@@ -139,7 +144,6 @@ To get the records of the authenticated user, you can use the following route. Y
           "date": "2023-05-02T11:35:13.024Z",
           "operation_type": "subtraction"
         },
-        ...
       ] 
     }
     ``` 
