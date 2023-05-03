@@ -2,47 +2,49 @@
 
 This API provides several routes to perform math operations, including addition, subtraction, multiplication, division, square root, and random string. It also allows users to perform sign-in and get their balance. The API supports pagination, sorting, and filtering.
 
-## Getting started
 
-1. Clone this repository to your local machine
-2. Run `npm install` to install all the required dependencies
-3. Run `npm run build` to build the project
-4. Run `npm start` to start the server
+## Project Setup
 
-The server will run on port 3000 by default. You can change this in the `.env` file.
+1. Make sure you have Docker installed
+2. Clone this repository to your local machine
 
-## API routes
+3. Create a .env file in the root of the project
 
-### Signin
-
-To sign in, you need to pass the `username` and `password` in the request body.
-
-- Route: `POST http://localhost:3000/api/v1/users/signin`
-- Example values: `{ "username": "user@mail.com", "password": "123456" }` 
-- There is a seed to inject this user when the server starts, with a default balance of 100
-- Expected response: a JWT token
-
-
-### Get user balance
-
-To get the user's balance, you need to pass the Bearer token collected from the sign-in request.
-
-- Route: `GET http://localhost:3000/api/v1/users/:id/balance`
-- Example: `http://localhost:3000/api/v1/users/644ffb94ff71109bf23785bf/balance`
-- Expected response: `{ "balance": "100" }` 
+    ```
+    PORT=3000
+    API_VERSION=v1
+    
+    JWT_SECRET=truenorth
+    JWT_TOKEN_EXPIRATION_TIME=20m
+    
+    MONGO_URL=mongodb://db:27017/truenorth
+    ```
+4. Run `npm run docker:build` to build a docker image
+5. Run `npm run docker:up` to start the containers
 
 
-### Perform operations
 
-To perform operations, you need to pass the Bearer token collected from the sign-in request, and specify the type of operation you want to perform. 
-
-- Route: `POST http://localhost:3000/api/v1/operations/:type`
-- type options: `addition, subtraction, multiplication, division, square_root, and random_string`
-- Example: `http://localhost:3000/api/v1/operations/addition`
-- Example body: `{ "params": [10, 5] }`
-- Expected response: `{ "result": "15", "balance": "94" }`
-- There is a seed to inject the operations with their costs when the server starts:
+### IMPORTANT!!!
+- After the installation, make sure you run the seed route to add Users and Operations to the database
 ```
+POST http://localhost:3000/dev/api/v1/seed
+```
+The following seeds will be synchronized:
+
+```
+// users
+[  
+      {    
+        "_id": "6450f05115b430b0ec783a98",
+        "username": "user@mail.com",
+        "password": "123456",
+        "balance": "100"
+      }
+]
+```
+
+```
+// operations
 [  
       {    
         "_id": "6450f420f1713f4543b02821",
@@ -77,18 +79,49 @@ To perform operations, you need to pass the Bearer token collected from the sign
 ]
 ```
 
+## API routes
+
+### Signin
+
+To sign in, you need to pass the `username` and `password` in the request body.
+
+- Route: `POST http://localhost:3000/dev/api/v1/users/signin`
+- Example values: `{ "username": "user@mail.com", "password": "123456" }` 
+- Expected response: a JWT token
+
+
+### Get user balance
+
+To get the user's balance, you need to pass the Bearer token collected from the sign-in request.
+
+- Route: `GET http://localhost:3000/dev/api/v1/users/:id/balance`
+- Example: `http://localhost:3000/dev/api/v1/users/644ffb94ff71109bf23785bf/balance`
+- Expected response: `{ "balance": "100" }` 
+
+
+### Perform operations
+
+To perform operations, you need to pass the Bearer token collected from the sign-in request, and specify the type of operation you want to perform. 
+
+- Route: `POST http://localhost:3000/dev/api/v1/operations/:type`
+- type options: `addition, subtraction, multiplication, division, square_root, and random_string`
+- Example: `http://localhost:3000/dev/api/v1/operations/addition`
+- Example body: `{ "params": [10, 5] }`
+- Expected response: `{ "result": "15", "balance": "94" }`
+
+
 ### Soft delete records
 
 To soft-delete a record, you need to pass the Bearer token collected from the sign-in request, and specify the ID of the record you want to delete.
 
-- Route: `DELETE http://localhost:3000/api/v1/records/:id`
-- Example: `http://localhost:3000/api/v1/records/6450f571eb3295d5b3d3c22e`
+- Route: `DELETE http://localhost:3000/dev/api/v1/records/:id`
+- Example: `http://localhost:3000/dev/api/v1/records/6450f571eb3295d5b3d3c22e`
 
 ### Get user records
 
 To get the records of the authenticated user, you can use the following route. You can also include pagination, sorting, and filtering options.
 
-- Route: `GET http://localhost:3000/api/v1/records`
+- Route: `GET http://localhost:3000/dev/api/v1/records`
 - Expected response: 
     ```json
     { 
