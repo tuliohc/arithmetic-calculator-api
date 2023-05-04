@@ -15,7 +15,8 @@ This API provides several routes to perform math operations, including addition,
     API_VERSION=v1
     
     JWT_SECRET=truenorth
-    JWT_TOKEN_EXPIRATION_TIME=20m
+    # JWT_TOKEN_EXPIRATION_TIME is defined in minutes
+    JWT_TOKEN_EXPIRATION_TIME=120   
     
     MONGO_URL=mongodb://db:27017/truenorth
     ```

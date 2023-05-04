@@ -10,13 +10,12 @@ interface AuthenticatedRequest extends Request {
 const cookieOptions = {
   httpOnly: true,
   secure: false, // Uncomment this line to use secure cookies (HTTPS only)
-  maxAge: parseInt(environment.JWT_TOKEN_EXPIRATION_TIME, 10) * 1000,
+  maxAge: parseInt(environment.JWT_TOKEN_EXPIRATION_TIME, 10) * 60 * 1000,
   sameSite: 'lax' as 'lax'
 };
 
 export default {
 
-  
   async signin(req: Request, res: Response) {
     const { JWT_SECRET, JWT_TOKEN_EXPIRATION_TIME } = environment;
     try {

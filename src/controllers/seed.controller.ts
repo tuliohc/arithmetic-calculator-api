@@ -1,7 +1,5 @@
 
-import { Request, Response } from 'express';
-import { environment } from '../config/environment';
-import mongoose from 'mongoose';
+import { Request, Response } from 'express';;
 import { UserModel, OperationModel } from '../models';
 import initialOperations from '../seed/operations-seed.json';
 import initialUsers from '../seed/users-seed.json'
