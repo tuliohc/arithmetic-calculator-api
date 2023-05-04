@@ -17,7 +17,7 @@ const apiVersion = environment.API_VERSION;
 connectDB();
 
 const corsOptions = {
-  origin: 'http://localhost:3001',
+  origin: process.env.CLIENT_URL,
   credentials: true
 };
 

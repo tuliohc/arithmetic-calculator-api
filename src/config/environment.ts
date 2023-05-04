@@ -10,5 +10,6 @@ export const environment: EnvConfig = {
   API_VERSION: process.env.API_VERSION || 'v1',
   JWT_SECRET: process.env.JWT_SECRET || 'truenorth',
   MONGO_URL: process.env.MONGO_URL || 'mongodb://localhost:27017/truenorth',
-  JWT_TOKEN_EXPIRATION_TIME: process.env.JWT_TOKEN_EXPIRATION_TIME || '5m'
+  JWT_TOKEN_EXPIRATION_TIME: process.env.JWT_TOKEN_EXPIRATION_TIME || '120',
+  CLIENT_URL: process.env.CLIENT_URL || 'http://localhost:3001'
 };
