@@ -7,17 +7,19 @@ interface AuthenticatedRequest extends Request {
   userId?: string;
 }
 
+const authExpirationTime = parseInt(environment.JWT_TOKEN_EXPIRATION_TIME, 10) * 60 * 1000
+
 const cookieOptions = {
   httpOnly: true,
-  secure: false, // Uncomment this line to use secure cookies (HTTPS only)
-  maxAge: parseInt(environment.JWT_TOKEN_EXPIRATION_TIME, 10) * 60 * 1000,
+  secure: process.env.NODE_ENV === 'production',
+  maxAge: authExpirationTime,
   sameSite: 'lax' as 'lax'
 };
 
 export default {
 
   async signin(req: Request, res: Response) {
-    const { JWT_SECRET, JWT_TOKEN_EXPIRATION_TIME } = environment;
+    const { JWT_SECRET } = environment;
     try {
       const { username, password } = req.body;
       const user = await UserModel.findOne({ username, password });
@@ -29,7 +31,7 @@ export default {
       const token = jwt.sign(
         { userId: user._id, username: user.username }, 
         JWT_SECRET, 
-        { expiresIn: JWT_TOKEN_EXPIRATION_TIME }
+        { expiresIn: authExpirationTime }
       );
 
       res.cookie('arithmeticCalculatorApp_jwtToken', token, cookieOptions);
