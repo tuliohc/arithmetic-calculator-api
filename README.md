@@ -19,6 +19,9 @@ This API provides several routes to perform math operations, including addition,
     JWT_TOKEN_EXPIRATION_TIME=120   
     
     MONGO_URL=mongodb://db:27017/truenorth
+
+    # make sure the client is running in the same port
+    CLIENT_URL=http://localhost:3001
     ```
 4. Run `npm run docker:build` to build a docker image
 5. Run `npm run docker:up` to start the containers
