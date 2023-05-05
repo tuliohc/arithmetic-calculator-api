@@ -45,7 +45,7 @@ export const recordController = {
         
       const transformedRecords = records.map(({ __v, operation, ...record }) => ({
         ...record,
-        operation_type: operation.type,
+        operationType: operation.type,
       }));
 
 
@@ -57,7 +57,7 @@ export const recordController = {
       });
 
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
   },
