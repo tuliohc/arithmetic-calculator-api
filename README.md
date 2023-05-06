@@ -146,7 +146,7 @@ To get the records of the authenticated user, you can use the following route. Y
           "operationResponse": "5",
           "deletedAt": "2023-05-02T14:03:19.405Z",
           "date": "2023-05-02T11:35:13.024Z",
-          "operation_type": "subtraction"
+          "operationType": "subtraction"
         },
       ] 
     }
