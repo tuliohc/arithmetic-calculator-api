@@ -57,17 +57,18 @@ export const operationController = {
       });
       res.json({
         result: operationResult.toString(),
+        cost: operation.cost,
         balance: user.balance,
       });
     } catch (error) {
-      // console.error(error);
+      //console.error(error);
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
   },
 };
 
 export async function calculate(type: OperationType, params: any[]) {
-  if (!Array.isArray(params) && type !== OperationType.RANDOM_STRING ) {
+  if (type !== OperationType.RANDOM_STRING && !Array.isArray(params)) {
     throw new Error('Invalid parameters');
   }
 
@@ -95,12 +96,10 @@ async function requestRandomString() {
       num: 1,
       len: 8,
       digits: 'on',
-      upperalpha: 'on',
-      loweralpha: 'on',
       unique: 'on',
       format: 'plain',
     },
   });
 
-  return response.data.trim();
+  return response.data;
 }

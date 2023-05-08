@@ -116,7 +116,7 @@ To perform operations, you need to pass the Bearer token collected from the sign
 - type options: `addition, subtraction, multiplication, division, square_root, and random_string`
 - Example: `http://localhost:3000/dev/api/v1/operations/addition`
 - Example body: `{ "params": [10, 5] }`
-- Expected response: `{ "result": "15", "balance": "94" }`
+- Expected response: `{ "result": "15", "cost": "1", "balance": "94" }`
 
 
 ### Soft delete records

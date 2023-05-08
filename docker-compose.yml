@@ -13,7 +13,7 @@ services:
     environment:
       MONGO_URL: "mongodb://db:27017/truenorth"
     networks:
-      - my-network
+      - truenorth
   db:
     image: mongodb/mongodb-community-server:6.0-ubi8
     environment:
@@ -21,7 +21,7 @@ services:
     ports:
       - "27017:27017"
     networks:
-      - my-network
+      - truenorth
 
 networks:
-  my-network:
+  truenorth:
