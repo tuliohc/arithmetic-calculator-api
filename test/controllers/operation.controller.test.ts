@@ -75,18 +75,18 @@ describe('Operation controller', () => {
     it('should perform an addition operation and return the result', async () => {
       jest.spyOn(UserModel, 'findById').mockResolvedValue({ _id: mockUser._id, balance: '100', save: jest.fn() });
       jest.spyOn(OperationModel, 'findOne').mockResolvedValue({ type: 'addition', cost: '1'});
-      jest.spyOn(RecordModel, 'create').mockResolvedValue(undefined);
+      jest.spyOn(RecordModel, 'create').mockResolvedValue([]);
   
       await operationController.performOperation(req as AuthenticatedRequest, res as Response);
   
       expect(UserModel.findById).toHaveBeenCalledWith(mockUser._id);
       expect(RecordModel.create).toHaveBeenCalled();
-      expect(json).toHaveBeenCalledWith({ result: '3', balance: '99' });
+      expect(json).toHaveBeenCalledWith({ result: '3', cost: '1', balance: '99' });
     });
 
     describe('error conditions', () => {
       it('should return a 400 error for invalid operation type', async () => {
-        req.params.type = 'INVALID_OPERATION_TYPE';
+        req.params = { type: 'INVALID_OPERATION_TYPE' };
         
         await operationController.performOperation(req as AuthenticatedRequest, res as Response);
       
