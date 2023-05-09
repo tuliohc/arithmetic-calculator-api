@@ -5,8 +5,8 @@ provider:
   runtime: nodejs16.x
   timeout: 30
 
-plugins:
-- serverless-offline
+  environment:
+    NODE_ENV: ${opt:stage, 'development'}
 
 custom:
   serverless-offline:
@@ -19,3 +19,11 @@ functions:
       - http:
           method: ANY
           path: /{proxy+}
+
+plugins:
+  - serverless-dotenv-plugin
+  - serverless-offline
+  - serverless-webpack
+
+webpack:
+  webpackConfig: webpack.config.js
