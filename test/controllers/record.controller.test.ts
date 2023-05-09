@@ -1,10 +1,15 @@
 import { Request, Response } from 'express';
+import mongoose from 'mongoose';
 import { recordController } from '../../src/controllers/record.controller';
 import { RecordModel } from '../../src/models/record.model';
+import { buildMatchObject } from '../../src/controllers/_helpers/records/buildMatch';
+import { buildSortOption } from '../../src/controllers/_helpers/records/buildSort';
+import { buildPipeline } from '../../src/controllers/_helpers/records/buildPipeline';
 
 jest.mock('../../src/models/record.model');
 
-const fakeUserId = '123'
+// mock 12 bytes ObjectId
+const fakeUserId = '6450f05115b430b0ec783a98'
 
 describe('Record controller', () => {
   describe('getRecords', () => {
@@ -15,42 +20,45 @@ describe('Record controller', () => {
     it('should return an array of records', async () => {
       const req = { userId: fakeUserId, query: {} } as unknown as Request;
       const res = { json: jest.fn(), status: jest.fn().mockReturnThis() } as unknown as Response;
+    
+      const mockedIds = [
+        '611033b5c0fc5a5b5a3f3561', 
+        '611033b5c0fc5a5b5a3f3562'
+      ]
 
       const mockRecords = [
-        { _id: '1', user: fakeUserId, operationType: 'addition', params: [1, 2], result: '3' },
-        { _id: '2', user: fakeUserId, operationType: 'subtraction', params: [5, 3], result: '2' },
+        { _id: mockedIds[0], operation: { type: 'addition' }, params: [1, 2], result: '3' },
+        { _id: mockedIds[1], operation: { type: 'subtraction' }, params: [5, 3], result: '2' },
       ];
-
+    
+      (RecordModel.aggregate as jest.Mock).mockResolvedValueOnce(mockRecords);
       (RecordModel.countDocuments as jest.Mock).mockResolvedValueOnce(2);
-      (RecordModel.find as jest.Mock).mockReturnValueOnce({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValueOnce(mockRecords),
-      });
-
+    
       await recordController.getRecords(req, res);
-
-      expect(RecordModel.countDocuments).toHaveBeenCalledWith({ user: fakeUserId });
-      expect(RecordModel.find).toHaveBeenCalledWith({ user: fakeUserId });
+    
+      expect(RecordModel.aggregate).toHaveBeenCalledTimes(1);
+      expect(RecordModel.countDocuments).toHaveBeenCalledWith({ user: expect.any(mongoose.Types.ObjectId) });
       expect(res.json).toHaveBeenCalledWith({
         page: 1,
         perPage: 10,
         totalCount: 2,
-        data: mockRecords,
+        data: [
+          { _id: mockedIds[0], operationType: 'addition', params: [1, 2], result: '3' },
+          { _id: mockedIds[1], operationType: 'subtraction', params: [5, 3], result: '2' },
+        ],
       });
     });
-
+    
     it('should return an error when an unexpected error occurs', async () => {
       const req = { userId: fakeUserId } as unknown as Request;
       const res = { json: jest.fn(), status: jest.fn().mockReturnThis() } as any;
 
-      jest.spyOn(RecordModel, 'find').mockImplementation(() => {
+      jest.spyOn(RecordModel, 'aggregate').mockImplementation(() => {
         throw new Error('Random Error');
       });
     
       await recordController.getRecords(req, res);
     
-      expect(RecordModel.find).toHaveBeenCalledWith({ user: fakeUserId });
       expect(res.status).toHaveBeenCalledWith(500);
       expect(res.json).toHaveBeenCalledWith({ error: 'An unexpected error occurred' });
     });
@@ -59,17 +67,13 @@ describe('Record controller', () => {
       const req = { userId: fakeUserId, query: {} } as unknown as Request;
       const res = { json: jest.fn(), status: jest.fn().mockReturnThis() } as unknown as Response;
     
+      (RecordModel.aggregate as jest.Mock).mockResolvedValueOnce([]);
       (RecordModel.countDocuments as jest.Mock).mockResolvedValueOnce(0);
-      (RecordModel.find as jest.Mock).mockReturnValueOnce({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValueOnce([]),
-      });
     
       await recordController.getRecords(req, res);
     
-      expect(RecordModel.countDocuments).toHaveBeenCalledWith({ user: fakeUserId });
-      expect(RecordModel.find).toHaveBeenCalledWith({ user: fakeUserId });
+      expect(RecordModel.countDocuments).toHaveBeenCalledWith({ user: expect.any(mongoose.Types.ObjectId) });
+      expect(RecordModel.aggregate).toHaveBeenCalledTimes(1);
       expect(res.json).toHaveBeenCalledWith({
         page: 1,
         perPage: 10,
@@ -77,7 +81,7 @@ describe('Record controller', () => {
         data: [],
       });
     });
-
+    
     it('should apply the search filter when the "search" query parameter is present', async () => {
       const req = {
         userId: fakeUserId,
@@ -87,46 +91,52 @@ describe('Record controller', () => {
       } as unknown as Request;
       const res = { json: jest.fn(), status: jest.fn().mockReturnThis() } as unknown as Response;
     
-      const mockRecords = [
-        { _id: '1', user: fakeUserId, operationType: 'addition', params: [1, 2], result: '3' },
-        { _id: '2', user: fakeUserId, operationType: 'subtraction', params: [5, 3], result: '2' },
+      const mockRecords = [    
+        { _id: '1', user: fakeUserId, operation: { type: 'addition' }, params: [1, 2], result: '3' },
+        { _id: '2', user: fakeUserId, operation: { type: 'subtraction' }, params: [5, 3], result: '2' },
       ];
     
-      (RecordModel.countDocuments as jest.Mock).mockResolvedValueOnce(2);
-      (RecordModel.find as jest.Mock).mockReturnValueOnce({
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockResolvedValueOnce(mockRecords),
-      });
+      const userObjectId = new mongoose.Types.ObjectId(fakeUserId);
+      const match = buildMatchObject(userObjectId, 'add');
+      const sortOption = buildSortOption(undefined);
+      const pipeline = buildPipeline(match, sortOption, 1, 10);
+    
+      (RecordModel.aggregate as jest.Mock).mockResolvedValueOnce(mockRecords);
+      (RecordModel.countDocuments as jest.Mock).mockResolvedValueOnce(mockRecords.length);
     
       await recordController.getRecords(req, res);
     
-      expect(RecordModel.countDocuments).toHaveBeenCalledWith({
-        user: fakeUserId,
-        $or: [
-          { operationType: { $regex: /add/i } },
-          { params: { $elemMatch: { $regex: /add/i } } },
-          { result: { $regex: /add/i } },
-        ],
-      });
-      expect(RecordModel.find).toHaveBeenCalledWith({
-        user: fakeUserId,
-        $or: [
-          { operationType: { $regex: /add/i } },
-          { params: { $elemMatch: { $regex: /add/i } } },
-          { result: { $regex: /add/i } },
-        ],
-      });
+      expect(RecordModel.aggregate).toHaveBeenCalledWith(pipeline);
+      expect(RecordModel.countDocuments).toHaveBeenCalledWith({ user: expect.any(mongoose.Types.ObjectId) });
       expect(res.json).toHaveBeenCalledWith({
         page: 1,
         perPage: 10,
-        totalCount: 2,
-        data: mockRecords,
+        totalCount: mockRecords.length,
+        data: mockRecords.map(({ operation, ...record }) => ({
+          ...record,
+          operationType: operation.type,
+        })),
       });
     });
 
+    it('should return a 500 status code and an error message when an unexpected error occurs', async () => {
+      const req = {
+        userId: fakeUserId,
+        query: {},
+      } as unknown as Request;
+      const res = { json: jest.fn(), status: jest.fn().mockReturnThis() } as unknown as Response;
+    
+      const mockError = new Error('Unexpected error occurred');
+      (RecordModel.aggregate as jest.Mock).mockRejectedValueOnce(mockError);
+    
+      await recordController.getRecords(req, res);
+    
+      expect(RecordModel.aggregate).toHaveBeenCalled();
+      expect(res.status).toHaveBeenCalledWith(500);
+      expect(res.json).toHaveBeenCalledWith({ error: 'An unexpected error occurred' });
+    });
+
     it('should apply the sort option when the "sort" query parameter is present', async () => {
-      jest.resetAllMocks();      
       const req = {
         userId: fakeUserId,
         query: {
@@ -135,37 +145,33 @@ describe('Record controller', () => {
       } as unknown as Request;
       const res = { json: jest.fn(), status: jest.fn().mockReturnThis() } as unknown as Response;
     
-      const mockRecords = [];
+      const mockRecords = [
+        { _id: '1', user: fakeUserId, operation: { type: 'addition' }, params: [1, 2], result: '3' },
+        { _id: '2', user: fakeUserId, operation: { type: 'subtraction' }, params: [5, 3], result: '2' },
+      ];
     
-      (RecordModel.countDocuments as jest.Mock).mockResolvedValueOnce(0);
-      const findMock = {
-        sort: jest.fn().mockReturnThis(),
-        skip: jest.fn().mockReturnThis(),
-        limit: jest.fn().mockReturnValueOnce(mockRecords),
-        exec: jest.fn().mockResolvedValueOnce(mockRecords),
-      };
-      (RecordModel.find as jest.Mock).mockReturnValueOnce(findMock);
+      const userObjectId = new mongoose.Types.ObjectId(fakeUserId);
+      const match = buildMatchObject(userObjectId, '');
+      const sortOption = buildSortOption('operationType:asc');
+      const pipeline = buildPipeline(match, sortOption, 1, 10);
     
+      (RecordModel.aggregate as jest.Mock).mockResolvedValueOnce(mockRecords);
+      (RecordModel.countDocuments as jest.Mock).mockResolvedValueOnce(mockRecords.length);
+
       await recordController.getRecords(req, res);
     
-      expect(RecordModel.countDocuments).toHaveBeenCalledWith({
-        user: fakeUserId,
-      });
-      expect(RecordModel.find).toHaveBeenCalledWith({
-        user: fakeUserId,
-      });
-    
-      expect(findMock.sort).toHaveBeenCalledWith({
-        operationType: 1,
-      });
+      expect(RecordModel.aggregate).toHaveBeenCalledWith(pipeline);
+      expect(RecordModel.countDocuments).toHaveBeenCalledWith({ user: expect.any(mongoose.Types.ObjectId) });
       expect(res.json).toHaveBeenCalledWith({
         page: 1,
         perPage: 10,
-        totalCount: 0,
-        data: [],
+        totalCount: mockRecords.length,
+        data: mockRecords.map(({ operation, ...record }) => ({
+          ...record,
+          operationType: operation.type,
+        })),
       });
     });
-
   });
 
   describe('deleteRecord', () => {
