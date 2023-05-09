@@ -1,6 +1,9 @@
 import { Request, Response } from 'express';
 import mongoose from 'mongoose';
 import { RecordModel } from '../models';
+import { buildMatchObject } from './_helpers/records/buildMatch';
+import { buildSortOption } from './_helpers/records/buildSort';
+import { buildPipeline } from './_helpers/records/buildPipeline';
 
 export const recordController = {
   async getRecords(req: Request, res: Response) {
@@ -9,9 +12,9 @@ export const recordController = {
       const { page = 1, perPage = 10, sort, search } = req.query || {};
 
       const userObjectId = new mongoose.Types.ObjectId(userId);
-      const match = buildRecordsMatchObject(userObjectId, search as string);
-      const sortOption = buildRecordsSortOption(sort as string);
-      const pipeline = buildRecordsPipeline(match, sortOption, page as number, perPage as number);
+      const match = buildMatchObject(userObjectId, search as string);
+      const sortOption = buildSortOption(sort as string);
+      const pipeline = buildPipeline(match, sortOption, page as number, perPage as number);
 
       const records = await RecordModel.aggregate(pipeline);
       const totalCount = await RecordModel.countDocuments({ user: userObjectId });
@@ -26,7 +29,7 @@ export const recordController = {
         })),
       });
     } catch (error) {
-      console.error(error);
+      // console.error(error);
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
   },
@@ -54,69 +57,3 @@ export const recordController = {
     }
   }
 };
-
-function buildRecordsMatchObject(userObjectId: mongoose.Types.ObjectId, search?: string) {
-  const formattedSearch = search ? search.toLowerCase().replace(/\s+/g, '_') : '';
-  const regexSearch = new RegExp(formattedSearch, 'i');
-
-  return {
-    $and: [
-      { user: userObjectId },
-      {
-        $or: [
-          { 'operation.type': { $regex: regexSearch } },
-          { userBalance: { $regex: regexSearch } },
-          { operationResponse: { $regex: regexSearch } },
-        ],
-      },
-    ],
-  };
-}
-
-function buildRecordsSortOption(sort?: string) {
-  let sortOption: { [key: string]: 1 | -1 } = { date: -1 };
-
-  if (sort && typeof sort === 'string') {
-    const parts = sort.split(':');
-    if (parts.length === 2 && ['asc', 'desc'].includes(parts[1])) {
-      const sortKey = parts[0] === 'operationType' ? 'operation.type' : parts[0];
-      sortOption = { [sortKey]: parts[1] === 'asc' ? 1 : -1 };
-    }
-  }
-
-  return sortOption;
-}
-
-function buildRecordsPipeline(
-  match: Record<string, any>,
-  sortOption: { [key: string]: 1 | -1 },
-  page: number,
-  perPage: number,
-) {
-  return [
-    {
-      $lookup: {
-        from: 'operations',
-        localField: 'operation',
-        foreignField: '_id',
-        as: 'operation',
-      },
-    },
-    { $unwind: '$operation' },
-    {
-      $project: {
-        user: 1,
-        amount: 1,
-        userBalance: 1,
-        deletedAt: 1,
-        operationResponse: 1,
-        date: 1,
-        'operation.type': 1,
-      },
-    },
-    { $match: match },
-    { $sort: sortOption },
-    { $skip: (Number(page) - 1) * Number(perPage) },
-    { $limit: Number(perPage) },
-  ];
-}
