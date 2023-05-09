@@ -13,7 +13,7 @@ const cookieOptions = {
   httpOnly: true,
   secure: process.env.NODE_ENV === 'production',
   maxAge: authExpirationTime,
-  sameSite: 'lax' as 'lax'
+  sameSite: 'none' as 'none'
 };
 
 export default {

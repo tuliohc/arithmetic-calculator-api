@@ -11,10 +11,12 @@ provider:
 custom:
   serverless-offline:
     host: 0.0.0.0
+  webpack:
+    includeModules: true 
 
 functions:
   api:
-    handler: dist/app.handler
+    handler: src/app.handler
     events:
       - http:
           method: ANY
