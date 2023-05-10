@@ -4,5 +4,11 @@
     "username": "user@mail.com",
     "password": "123456",
     "balance": "100"
+  },
+  {    
+    "_id": "6450f05115b430b0ec783a97",
+    "username": "test@mail.com",
+    "password": "654321",
+    "balance": "150"
   }
 ]
