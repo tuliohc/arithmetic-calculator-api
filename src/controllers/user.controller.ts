@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt';
 import { Request, Response } from 'express';
 import { UserModel } from '../models/user.model';
 import { environment } from '../config/environment';
@@ -22,11 +23,18 @@ export default {
     const { JWT_SECRET } = environment;
     try {
       const { username, password } = req.body;
-      const user = await UserModel.findOne({ username, password });
+      const user = await UserModel.findOne({ username });
+
       if (!user) {
         return res.status(401).json({ error: 'Invalid credentials' });
       }
+
+      const passwordMatches = await bcrypt.compare(password, user.password);
   
+      if (!passwordMatches) {
+        return res.status(401).json({ error: 'Invalid credentials' });
+      }
+      
       // Create a JWT token with the user ID and username
       const token = jwt.sign(
         { userId: user._id, username: user.username }, 
@@ -48,7 +56,7 @@ export default {
       res.clearCookie('arithmeticCalculatorApp_jwtToken');
       res.json({ message: 'Sign-out successful' });
     } catch (error) {
-      console.error('Error during sign-out:', error);
+      console.error(error);
       res.status(500).json({ error: 'An unexpected error occurred' });
     }
   },

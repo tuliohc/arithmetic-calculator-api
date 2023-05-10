@@ -2,7 +2,7 @@
   {    
     "_id": "6450f05115b430b0ec783a98",
     "username": "user@mail.com",
-    "password": "123456",
+    "password": "$2b$10$0l/dpG9r.aGh0PYJ5ia5Ne5D5Z5hJLkMChKLt3OqV7H0Y2TruV7ve",
     "balance": "100"
   }
 ]

@@ -1,3 +1,5 @@
+.DS_Store
+.serverless
 dist
 coverage
 node_modules
