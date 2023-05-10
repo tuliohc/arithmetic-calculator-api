@@ -43,53 +43,53 @@ This API provides several routes to perform math operations, including addition,
     ```
 The following seeds will be synchronized:
 
-    ```
-    // users
-    [  
-          {    
-            "_id": "6450f05115b430b0ec783a98",
-            "username": "user@mail.com",
-            "password": "123456",
-            "balance": "100"
-          }
-    ]
-    ```
+```
+// users
+[  
+      {    
+        "_id": "6450f05115b430b0ec783a98",
+        "username": "user@mail.com",
+        "password": "123456",
+        "balance": "100"
+      }
+]
+```
 
-    ```
-    // operations
-    [  
-          {    
-            "_id": "6450f420f1713f4543b02821",
-            "type": "addition",    
-            "cost": 1.0  
-          },  
-          {  
-            "_id": "6450f420f1713f4543b02822",  
-            "type": "subtraction",    
-            "cost": 1.0  
-          },  
-          {    
-            "_id": "6450f420f1713f4543b02823",
-            "type": "multiplication",    
-            "cost": 2.0  
-          },  
-          {    
-            "_id": "6450f420f1713f4543b02824",
-            "type": "division",    
-            "cost": 2.0  
-          },  
-          {    
-            "_id": "6450f420f1713f4543b02825",
-            "type": "square_root",    
-            "cost": 3.0  
-          },
-          {    
-            "_id": "6450f420f1713f4543b02826",
-            "type": "random_string",    
-            "cost": 4.0  
-          }
-    ]
-    ```
+```
+// operations
+[  
+      {    
+        "_id": "6450f420f1713f4543b02821",
+        "type": "addition",    
+        "cost": 1.0  
+      },  
+      {  
+        "_id": "6450f420f1713f4543b02822",  
+        "type": "subtraction",    
+        "cost": 1.0  
+      },  
+      {    
+        "_id": "6450f420f1713f4543b02823",
+        "type": "multiplication",    
+        "cost": 2.0  
+      },  
+      {    
+        "_id": "6450f420f1713f4543b02824",
+        "type": "division",    
+        "cost": 2.0  
+      },  
+      {    
+        "_id": "6450f420f1713f4543b02825",
+        "type": "square_root",    
+        "cost": 3.0  
+      },
+      {    
+        "_id": "6450f420f1713f4543b02826",
+        "type": "random_string",    
+        "cost": 4.0  
+      }
+]
+```
 - If you run out of credits to perform operations, just run the seed request again.
 
 ## API routes
