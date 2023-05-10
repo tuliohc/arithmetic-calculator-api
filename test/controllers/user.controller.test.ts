@@ -1,4 +1,5 @@
 import jwt from 'jsonwebtoken';
+import bcrypt from 'bcrypt'
 import { Request, Response } from 'express';
 import userController from '../../src/controllers/user.controller';
 import { UserModel } from '../../src/models/user.model';
@@ -14,10 +15,11 @@ describe('User Controller', () => {
 
   describe('signin', () => {
     it('should sign in the user with valid credentials', async () => {
+      const mockHashedPassword = await bcrypt.hash(mockPassword, 10)
       const mockUser = {
         _id: mockUserId,
         username: mockUsername,
-        password: mockPassword,
+        password: mockHashedPassword,
         balance: mockBalance
       };
 
@@ -35,38 +37,94 @@ describe('User Controller', () => {
       } as unknown as Response;
 
       jest.spyOn(UserModel, 'findOne').mockResolvedValueOnce(mockUser);
-
+      jest.spyOn(bcrypt, 'compare').mockReturnValueOnce(true as never);
       jest.spyOn(jwt, 'sign').mockResolvedValueOnce(mockToken);
 
       await userController.signin(mockRequest, mockResponse);
 
-      expect(UserModel.findOne).toHaveBeenCalledWith({ username: mockUsername, password: mockPassword });
+      expect(UserModel.findOne).toHaveBeenCalledWith({ username: mockUsername });
+      expect(bcrypt.compare).toHaveBeenCalledWith(mockPassword, mockUser.password);
       expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Sign-in successful' });
     });
 
 
-
     it('should not sign in the user with invalid credentials', async () => {
+      const mockHashedPassword = await bcrypt.hash(mockPassword, 10)
+      const mockUser = {
+        _id: mockUserId,
+        username: mockUsername,
+        password: mockHashedPassword,
+        balance: mockBalance
+      };
+
       const mockRequest = {
         body: {
           username: mockUsername,
           password: 'wrong_password'
         }
       } as unknown as Request;
+    
+      const mockResponse = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+        cookie: jest.fn()
+      } as unknown as Response;
+    
+      jest.spyOn(UserModel, 'findOne').mockResolvedValueOnce(mockUser);
+      jest.spyOn(bcrypt, 'compare').mockResolvedValueOnce(false as never);
+    
+      await userController.signin(mockRequest, mockResponse);
+    
+      expect(UserModel.findOne).toHaveBeenCalledWith({ username: mockUsername });
+      expect(bcrypt.compare).toHaveBeenCalledWith('wrong_password', mockHashedPassword);
+      expect(mockResponse.status).toHaveBeenCalledWith(401);
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Invalid credentials' });
+    });
 
+    it('should return a 500 status code and an error message when an unexpected error occurs', async () => {
+      const mockRequest = {
+        body: {
+          username: mockUsername,
+          password: mockPassword
+        }
+      } as unknown as Request;
+  
       const mockResponse = {
         status: jest.fn().mockReturnThis(),
         json: jest.fn()
       } as unknown as Response;
-
-      jest.spyOn(UserModel, 'findOne').mockResolvedValueOnce(null);
-
+  
+      jest.spyOn(UserModel, 'findOne').mockRejectedValueOnce(new Error('Unexpected error'));
+  
       await userController.signin(mockRequest, mockResponse);
+  
+      expect(UserModel.findOne).toHaveBeenCalledWith({ username: mockUsername });
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'An unexpected error occurred' });
+    });
 
-      expect(UserModel.findOne).toHaveBeenCalledWith({ username: mockUsername, password: 'wrong_password' });
+    it('should return a 401 status code and an error message when the user is not found', async () => {
+      const mockRequest = {
+        body: {
+          username: mockUsername,
+          password: mockPassword
+        }
+      } as unknown as Request;
+  
+      const mockResponse = {
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn()
+      } as unknown as Response;
+  
+      jest.spyOn(UserModel, 'findOne').mockResolvedValueOnce(null);
+  
+      await userController.signin(mockRequest, mockResponse);
+  
+      expect(UserModel.findOne).toHaveBeenCalledWith({ username: mockUsername });
       expect(mockResponse.status).toHaveBeenCalledWith(401);
       expect(mockResponse.json).toHaveBeenCalledWith({ error: 'Invalid credentials' });
     });
+    
   });
 
   describe('signout', () => {
@@ -81,6 +139,21 @@ describe('User Controller', () => {
 
       expect(mockResponse.clearCookie).toHaveBeenCalledWith('arithmeticCalculatorApp_jwtToken');
       expect(mockResponse.json).toHaveBeenCalledWith({ message: 'Sign-out successful' });
+    });
+
+    it('should handle an error when clearing the cookie', async () => {
+      const mockRequest = {} as unknown as Request;
+      const mockResponse = {
+        clearCookie: jest.fn(() => { throw new Error('Failed to clear cookie') }),
+        status: jest.fn().mockReturnThis(),
+        json: jest.fn(),
+      } as unknown as Response;
+  
+      await userController.signout(mockRequest, mockResponse);
+  
+      expect(mockResponse.clearCookie).toHaveBeenCalledWith('arithmeticCalculatorApp_jwtToken');
+      expect(mockResponse.status).toHaveBeenCalledWith(500);
+      expect(mockResponse.json).toHaveBeenCalledWith({ error: 'An unexpected error occurred' });
     });
   });
 
