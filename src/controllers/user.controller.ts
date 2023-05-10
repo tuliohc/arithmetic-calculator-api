@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import bcrypt from 'bcrypt';
+import bcrypt from 'bcryptjs';
 import { Request, Response } from 'express';
 import { UserModel } from '../models/user.model';
 import { environment } from '../config/environment';
@@ -10,11 +10,12 @@ interface AuthenticatedRequest extends Request {
 
 const authExpirationTime = parseInt(environment.JWT_TOKEN_EXPIRATION_TIME, 10) * 60 * 1000
 
+const { NODE_ENV } = process.env;
 const cookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === 'production',
+  secure: NODE_ENV === 'production',
   maxAge: authExpirationTime,
-  sameSite: 'lax' as 'lax'
+  sameSite: NODE_ENV === 'production' ? ('none' as 'none') : ('lax' as 'lax')
 };
 
 export default {

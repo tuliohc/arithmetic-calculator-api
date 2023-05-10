@@ -3,6 +3,9 @@ import { Request, Response } from 'express';;
 import { UserModel, OperationModel } from '../models';
 import initialOperations from '../seed/operations-seed.json';
 import initialUsers from '../seed/users-seed.json'
+import bcrypt from 'bcryptjs';
+
+const saltRounds = 10;
 
 export default {
   async seed(req: Request, res: Response) {
@@ -18,8 +21,14 @@ export default {
         const operations = await OperationModel.create(initialOperations);
         console.log(`Inserted ${operations.length} operations`);
     
+        // Hash passwords
+        const hashedUsers = await Promise.all(initialUsers.map(async user => {
+          const hashedPassword = await bcrypt.hash(user.password, saltRounds);
+          return { ...user, password: hashedPassword };
+        }));
+
         // Insert users
-        const users = await UserModel.create(initialUsers)
+        const users = await UserModel.create(hashedUsers)
         console.log(`Inserted ${users.length} user(s)`)
 
         console.log('Seeds successfully synced');
